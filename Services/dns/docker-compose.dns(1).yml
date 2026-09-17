@@ -1,0 +1,68 @@
+version: "3.9"
+
+# Ce fichier ne décrit QUE le service DNS. Quand tu auras les autres
+# services (firewall, web, admin, ...), fusionne les blocs "services:"
+# et "networks:" dans un seul docker-compose.yml global, en gardant
+# une seule définition du réseau "serveurs".
+
+services:
+  dns:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sae5-dns:custom          # image personnalisée (compte pour les 2 images perso demandées)
+    container_name: dns
+    hostname: dns
+    restart: unless-stopped
+
+    # Durcissement : pas de privilèges root superflus.
+    # named a besoin de bind sur le port 53 (<1024) -> on ne garde
+    # que la capability nécessaire au lieu de tourner en root complet.
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/cache/bind
+      - /run/named
+
+    # Pas de "env_file:" ici : rien dans le conteneur ne lit DNS_IP au
+    # runtime (la conf BIND est 100% statique). DNS_IP ne sert qu'à la
+    # substitution ${...} plus bas, et Compose lit .env automatiquement
+    # pour ça tant qu'il est dans le même dossier que ce fichier — pas
+    # besoin de le déclarer explicitement.
+
+    networks:
+      serveurs:
+        ipv4_address: ${DNS_IP}
+
+    volumes:
+      - ./config/named.conf.options:/etc/bind/named.conf.options:ro
+      - ./config/named.conf.local:/etc/bind/named.conf.local:ro
+      - ./config/zones:/etc/bind/zones:ro
+      - dns_cache:/var/cache/bind
+
+    # Pas de "ports:" -> le DNS n'est PAS exposé sur l'hôte, uniquement
+    # accessible depuis les conteneurs du réseau "serveurs" (et USERS
+    # via le routage/firewall, selon ton tableau de filtrage).
+
+    healthcheck:
+      test: ["CMD", "dig", "@127.0.0.1", "lab.local", "+short", "+time=2"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  serveurs:
+    name: serveurs
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.20.0/24
+          gateway: 192.168.20.1
+
+volumes:
+  dns_cache:

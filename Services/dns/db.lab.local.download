@@ -1,0 +1,21 @@
+$TTL 3600
+@       IN      SOA     dns.lab.local. admin.lab.local. (
+                        2026091701      ; Serial (format AAAAMMJJNN, incrémenter à chaque modif)
+                        3600            ; Refresh
+                        900             ; Retry
+                        604800          ; Expire
+                        3600 )          ; Negative TTL
+
+        IN      NS      dns.lab.local.
+
+; --- Réseau SERVERS ---
+dns     IN      A       192.168.20.20
+web     IN      A       192.168.20.10
+dhcp    IN      A       192.168.20.30
+
+; --- Réseau ADMIN ---
+admin   IN      A       192.168.30.10
+
+; --- Réseau USERS (facultatif, pratique pour les tests) ---
+user1   IN      A       192.168.10.10
+user2   IN      A       192.168.10.20
