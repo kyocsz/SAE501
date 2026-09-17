@@ -1,1 +1,33 @@
+version: "3.9"
 
+services:
+  dhcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dnsmasq-dhcp:custom
+    container_name: dhcp
+    hostname: dhcp
+    restart: unless-stopped
+
+    # dnsmasq a besoin de NET_ADMIN pour gérer les baux / la table ARP
+    cap_add:
+      - NET_ADMIN
+
+    networks:
+      lan:
+        ipv4_address: 172.20.0.10   # IP fixe du serveur DHCP -> à adapter
+
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf:ro
+
+    ports:
+      - "67:67/udp"    # port DHCP standard
+
+networks:
+  lan:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24     # réseau d'exemple -> à adapter
+          gateway: 172.20.0.1
