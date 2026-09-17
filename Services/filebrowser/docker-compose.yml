@@ -12,3 +12,6 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+    networks:
+      services-network:
+        ipv4_adress: 192.168.20.40

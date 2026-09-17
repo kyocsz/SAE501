@@ -10,3 +10,6 @@ services:
       - ./rsyslog.conf:/etc/rsyslog.conf:ro
       - ./conf.d:/etc/rsyslog.d:ro
       - ./Logs:/var/log
+    networks:
+      admin-network:
+        ipv4_adress: 192.168.30.20
