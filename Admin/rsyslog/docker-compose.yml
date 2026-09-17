@@ -1,1 +1,12 @@
-
+services:
+  rsyslog:
+    image: rsyslog/syslog_appliance_alpine:latest
+    container_name: rsyslog
+    restart: unless-stopped
+    ports:
+      - "514:514/udp"
+      - "514:514/tcp"
+    volumes:
+      - ./rsyslog.conf:/etc/rsyslog.conf:ro
+      - ./conf.d:/etc/rsyslog.d:ro
+      - ./Logs:/var/log
