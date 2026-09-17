@@ -1,0 +1,50 @@
+version: "3.9"
+
+# Ce fichier ne décrit QUE le service Web. À fusionner plus tard avec
+# les autres blocs "services:" dans un seul docker-compose.yml global,
+# en gardant une seule définition du réseau "serveurs".
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sae5-web:custom          # 2e image personnalisée (avec dns = 2/2 minimum demandé)
+    container_name: web
+    hostname: web
+    restart: unless-stopped
+
+    # Durcissement : pas de privilèges root superflus.
+    # gunicorn a besoin de bind sur le port 443 (<1024) -> seule capa gardée.
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+    networks:
+      serveurs:
+        ipv4_address: ${WEB_IP}    # 192.168.20.10 par défaut, voir .env
+
+    # Pas de "ports:" -> pas exposé sur l'hôte, uniquement joignable
+    # depuis USERS (via le firewall/routage) et les autres réseaux SERVERS,
+    # conformément à ton tableau de filtrage (USERS -> WEB -> HTTP -> Oui).
+
+    healthcheck:
+      test: ["CMD", "curl", "-kf", "https://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  serveurs:
+    name: serveurs
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.20.0/24
+          gateway: 192.168.20.1
