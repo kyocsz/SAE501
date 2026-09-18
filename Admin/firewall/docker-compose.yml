@@ -7,12 +7,12 @@ services:
       - NET_ADMIN
       - NET_RAW
     networks:
-      users-network:
-        ipv4_address: 192.168.10.1
-      services-network:
-        ipv4_address: 192.168.20.1
       admin-network:
         ipv4_address: 192.168.30.1
+      services-network:
+        ipv4_address: 192.168.20.1
+      users-network:
+        ipv4_address: 192.168.10.1
     volumes:
       - ./nftables.conf:/etc/nftables.conf:ro
     sysctls:

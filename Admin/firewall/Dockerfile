@@ -2,7 +2,7 @@ FROM alpine:latest
 
 RUN apk add --no-cache nftables iproute2
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY loader.sh /loader.sh
+RUN chmod +x /loader.sh
 
 ENTRYPOINT ["/loader.sh"]
