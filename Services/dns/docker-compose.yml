@@ -50,13 +50,8 @@ services:
       retries: 3
 
 networks:
-  serveurs:
-    name: serveurs
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.20.0/24
-          gateway: 192.168.20.1
+  services-network:
+    external: true
 
 volumes:
   dns_cache:

@@ -14,4 +14,8 @@ services:
       - PGID=1000
     networks:
       services-network:
-        ipv4_adress: 192.168.20.40
+        ipv4_address: 192.168.20.40
+
+networks:
+  services-network:
+    external: true
