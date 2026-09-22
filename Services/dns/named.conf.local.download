@@ -1,5 +1,0 @@
-zone "lab.local" {
-    type master;
-    file "/etc/bind/zones/db.lab.local";
-    allow-update { none; };
-};
