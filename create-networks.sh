@@ -1,14 +1,14 @@
-docker network create \
-  --driver bridge \
+sudo docker network create \
   --subnet 192.168.30.0/24 \
+  --gateway 192.168.30.254 \
   admin-network
 
-docker network create \
-  --driver bridge \
+sudo docker network create \
   --subnet 192.168.20.0/24 \
+  --gateway 192.168.20.254 \
   services-network
 
-docker network create \
-  --driver bridge \
+sudo docker network create \
   --subnet 192.168.10.0/24 \
-  services-network
+  --gateway 192.168.10.254 \
+  users-network
