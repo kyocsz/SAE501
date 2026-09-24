@@ -3,8 +3,6 @@ services:
     image: filebrowser/filebrowser:latest
     container_name: filebrowser
     restart: unless-stopped
-    ports:
-      - "8080:80"
     volumes:
       - ./Files:/srv
       - ./filebrowser.db:/database/filebrowser.db
@@ -12,6 +10,11 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://192.168.30.20:514"
+        tag: "filebrowser"
     networks:
       services-network:
         ipv4_address: 192.168.20.40

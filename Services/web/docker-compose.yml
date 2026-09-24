@@ -1,12 +1,15 @@
 services:
   web:
     build: .
-    ports:
-      - "5000:5000"
     volumes:
       - .:/app
     environment:
       - FLASK_ENV=development
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://192.168.30.20:514"
+        tag: "web"
     networks:
       services-network:
         ipv4_address: 192.168.20.10
