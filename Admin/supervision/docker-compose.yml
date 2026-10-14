@@ -1,0 +1,79 @@
+services:
+  postgres-server:
+    image: postgres:16-alpine
+    container_name: zabbix-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - zabbix-db:/var/lib/postgresql/data
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://192.168.30.20:514"
+        tag: "zabbix-postgres"
+    networks:
+      - zabbix-net
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-7.0-latest
+    container_name: zabbix-server
+    restart: unless-stopped
+    depends_on:
+      - postgres-server
+    environment:
+      DB_SERVER_HOST: postgres-server
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ZBX_CACHESIZE: ${ZBX_CACHESIZE:-128M}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - zabbix-alertscripts:/usr/lib/zabbix/alertscripts
+      - zabbix-externalscripts:/usr/lib/zabbix/externalscripts
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://192.168.30.20:514"
+        tag: "zabbix-server"
+    networks:
+      zabbix-net:
+      admin-network:
+        ipv4_address: 192.168.30.11
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-7.0-latest
+    container_name: zabbix-web
+    restart: unless-stopped
+    depends_on:
+      - postgres-server
+      - zabbix-server
+    environment:
+      ZBX_SERVER_HOST: zabbix-server
+      DB_SERVER_HOST: postgres-server
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PHP_TZ: ${PHP_TZ:-Europe/Paris}
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://192.168.30.20:514"
+        tag: "zabbix-web"
+    networks:
+      zabbix-net:
+      admin-network:
+        ipv4_address: 192.168.30.10
+
+volumes:
+  zabbix-db:
+  zabbix-alertscripts:
+  zabbix-externalscripts:
+
+networks:
+  zabbix-net:
+    internal: true
+  admin-network:
+    external: true
