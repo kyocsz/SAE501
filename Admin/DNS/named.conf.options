@@ -1,0 +1,24 @@
+acl "lab-networks" {
+    192.168.10.0/24;   // USERS
+    192.168.20.0/24;   // SERVERS
+    192.168.30.0/24;   // ADMIN
+};
+
+options {
+    directory "/var/cache/bind";
+
+    listen-on { any; };
+    listen-on-v6 { none; };
+
+    recursion yes;
+    allow-recursion { lab-networks; };
+    allow-query { lab-networks; };
+    allow-transfer { none; };          // pas de transfert de zone
+
+    // Redirige les requêtes hors zone lab.local vers un résolveur externe.
+    // Si le labo doit rester totalement isolé, commente ces 2 lignes.
+    forwarders { 1.1.1.1; 9.9.9.9; };
+
+    dnssec-validation no;
+    version "not disclosed";           // durcissement : ne pas exposer la version
+};
