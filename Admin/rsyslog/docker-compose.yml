@@ -12,7 +12,7 @@ services:
       - ./Logs:/var/log
     networks:
       admin-network:
-        ipv4_adress: 192.168.30.20
+        ipv4_address: 192.168.30.20
 
 networks:
   admin-network:
