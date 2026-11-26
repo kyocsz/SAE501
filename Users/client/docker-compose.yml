@@ -1,0 +1,23 @@
+services:
+  client-users:
+    image: alpine:3.20
+    container_name: client-users
+    cap_add:
+      - NET_ADMIN
+    command: >
+      sh -c "apk add --no-cache curl nmap netcat-openbsd iputils bind-tools iproute2 &&
+             ip route add 192.168.20.0/24 via 192.168.10.254 &&
+             ip route add 192.168.30.0/24 via 192.168.10.254 &&
+             sleep infinity"
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://192.168.30.20:514"
+        tag: "client-users"
+    networks:
+      users-network:
+        ipv4_address: 192.168.10.100
+
+networks:
+  users-network:
+    external: true
