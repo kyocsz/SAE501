@@ -14,10 +14,13 @@ services:
     networks:
       admin-network:
         ipv4_address: 192.168.30.254
+        interface_name: eth2
       services-network:
         ipv4_address: 192.168.20.254
+        interface_name: eth1
       users-network:
         ipv4_address: 192.168.10.254
+        interface_name: eth0
     volumes:
       - ./nftables.conf:/etc/nftables.conf:ro
     sysctls:
